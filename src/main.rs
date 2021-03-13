@@ -1,6 +1,6 @@
 pub use std::collections::HashMap;
 
-const MOD: i32 = (10 ^ 9) + 7;
+const MOD: i32 = 10i32.pow(9) + 7;
 
 fn main() {
   assert_eq!(count_routes(vec![2, 3, 6, 8, 4], 1, 3, 5), 4);
@@ -11,8 +11,8 @@ struct Movement {
   current: usize,
   end: usize,
 
-  fuel: i32,
-  paths: i32,
+  fuel_remaining: i32,
+  path_count: i32,
 }
 
 fn inner_count(
@@ -20,7 +20,7 @@ fn inner_count(
   mut state: Movement,
   cache: &mut HashMap<usize, HashMap<i32, i32>>,
 ) -> Movement {
-  if state.fuel < 0 {
+  if state.fuel_remaining < 0 {
     return state;
   }
 
@@ -31,12 +31,12 @@ fn inner_count(
 
   if state.current == state.end {
     state = Movement {
-      paths: state.paths + 1,
+      path_count: state.path_count + 1,
       ..state
     }
   }
 
-  let paths = state.paths
+  let path_count = state.path_count
     + locations
       .iter()
       .enumerate()
@@ -45,51 +45,54 @@ fn inner_count(
           acc
         } else {
           let cost = (other_position - current_position).abs();
-          let fuel = state.fuel - cost;
+          let fuel_remaining = state.fuel_remaining - cost;
 
           let next = Movement {
-            fuel,
+            fuel_remaining,
             current: index,
-            paths: 0,
+            path_count: 0,
             end: state.end,
           };
 
           acc
             + cache
               .get(&index)
-              .and_then(|entry| entry.get(&fuel))
+              .and_then(|entry| entry.get(&fuel_remaining))
               .map(|ref_count| ref_count.clone())
-              .unwrap_or_else(|| inner_count(locations, next, cache).paths)
+              .unwrap_or_else(|| inner_count(locations, next, cache).path_count)
         }
       });
 
-  let paths = paths % MOD;
+  let path_count = path_count % MOD;
   match cache.get_mut(&state.current) {
-    Some(other) => other.insert(state.fuel, paths),
+    Some(other) => other.insert(state.fuel_remaining, path_count),
     None => {
       let mut root = HashMap::new();
-      root.insert(state.fuel, paths);
+      root.insert(state.fuel_remaining, path_count);
       cache.insert(state.current, root);
-      Some(paths)
+      Some(path_count)
     }
   };
 
-  return Movement { paths, ..state };
+  return Movement {
+    path_count,
+    ..state
+  };
 }
 
-fn count_routes(locations: Vec<i32>, start: usize, end: usize, fuel: i32) -> i32 {
+fn count_routes(locations: Vec<i32>, start: usize, end: usize, fuel_remaining: i32) -> i32 {
   let mut cache = HashMap::new();
   inner_count(
     &locations,
     Movement {
       current: start,
-      paths: 0,
+      path_count: 0,
       end,
-      fuel,
+      fuel_remaining,
     },
     &mut cache,
   )
-  .paths
+  .path_count
 }
 
 #[cfg(test)]
@@ -118,6 +121,6 @@ mod tests {
 
   #[test]
   fn fifth() {
-    assert_eq!(count_routes(vec![1, 2, 3], 0, 2, 40), 0);
+    assert_eq!(count_routes(vec![1, 2, 3], 0, 2, 40), 615088286);
   }
 }
