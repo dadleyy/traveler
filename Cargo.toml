@@ -5,6 +5,10 @@ authors = ["Danny Hadley <dadleyy@gmail.com>"]
 edition = "2018"
 
 [[bin]]
+name = "toy"
+path = "src/toy/main.rs"
+
+[[bin]]
 name = "topics"
 path = "src/topics/main.rs"
 
