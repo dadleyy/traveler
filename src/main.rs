@@ -1,5 +1,7 @@
 pub use std::collections::HashMap;
+
 pub mod leaderboard;
+pub mod queens_attack;
 
 const MOD: i32 = 10i32.pow(9) + 7;
 
