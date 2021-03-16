@@ -5,9 +5,12 @@ authors = ["Danny Hadley <dadleyy@gmail.com>"]
 edition = "2018"
 
 [[bin]]
+name = "topics"
+path = "src/topics/main.rs"
+
+[[bin]]
 name = "traveler"
 path = "src/traveler/main.rs"
-
 
 [[bin]]
 name = "queen"
